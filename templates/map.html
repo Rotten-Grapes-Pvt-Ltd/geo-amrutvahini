@@ -1,0 +1,176 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Map{% endblock %}
+{% block content %}
+
+<div id="map" class="map">
+  <div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div class="IdentifyNav">
+      <button id="idLeft" onclick="identify_left()"><i class="icofont-bubble-left"></i></button>  
+      <button id="idRight" onclick="identify_right()"><i class="icofont-bubble-right"></i></button>
+    </div>
+    <div id="popup-content"></div>
+  </div>
+  <ul class="toolBar">
+    <li class="menuItem" id="layerListCTA" onclick="showContent('layerList');pointOnMap(false);">
+      <i class="icofont-layers"></i><br />
+      Layer List
+    </li>
+    <li class="menuItem" id="addLayerCTA" onclick="showContent('addLayer');pointOnMap(false);">
+      <i class="icofont-ui-add"></i><br />
+      Add Layer
+    </li>
+    <li
+      class="menuItem"
+      id="queryBuilderCTA"
+      onclick="showContent('queryBuilder');pointOnMap(false);"
+    >
+      <i class="icofont-ui-settings"></i><br />
+      Query Builder
+    </li>
+    <li
+      class="menuItem"
+      id="measurementCTA"
+      onclick="showContent('measurement');pointOnMap(false);"
+    >
+      <i class="icofont-ruler-pencil"></i><br />
+      Measurement
+    </li>
+    <li
+      class="menuItem"
+      id="weatherCTA"
+      onclick="showContent('weather');pointOnMap(true);"
+    >
+      <i class="icofont-ui-weather"></i><br />
+      Weather
+    </li>
+  </ul>
+  <div class="navContent">
+    <span id="closeNavContent">
+      <i class="icofont-close-line-circled"></i>
+    </span>
+    {%include "components/layerList.html"%} 
+    {%include "components/addLayer.html"%} 
+    {%include "components/queryBuilder.html"%} 
+    {%include "components/measurement.html"%}
+    {%include "components/weather.html"%}
+  </div>
+  <ul class="onMapBtns">
+    <li onclick="startIdentification()" id="identify"><i class="icofont-info"></i></li>
+  </ul>
+</div>
+
+<div
+  class="modal fade"
+  id="overallSummary"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="overallSummaryLabel"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="overallSummary">Overall Summary</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">...</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="button" class="btn btn-primary">Understood</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="IGWDPSummary"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="IGWDPSummaryLabel"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="IGWDPSummary">IGWDP</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <table class="table" id="IGWDP">
+          <thead>
+            <th>S No.</th>
+            <th>State</th>
+            <th>Districts Covered</th>
+            <th>No of Watersheds</th>
+            <th>Geographical Area (Ha)</th>
+            <th>Treatable Area (Ha)</th>
+            <th>Households Covered</th>
+            <th>Total PFAs</th>
+            <th>OnGoing Projects</th>
+            <th>Completed Projects</th>
+            <th>Amount Sanctioned (In Lakhs)</th>
+            <th>Amount Disbursed (In Lakhs)</th>
+            <th>Amount Utilized (In Lakhs)</th>
+          </thead>
+          <tbody>
+            {% for each in IGWDP %}
+            <tr>
+              <td>{{ each.id }}</td>
+              <td>{{ each.state }}</td>
+              <td>{{ each.districtscovered }}</td>
+              <td>{{ each.watershedscount }}</td>
+              <td>{{ each.geographicalarea }}</td>
+              <td>{{ each.treatablearea }}</td>
+              <td>{{ each.householdscovered }}</td>
+              <td>{{ each.pfacount }}</td>
+              <td>{{ each.ongoingprojects }}</td>
+              <td>{{ each.completedprojects }}</td>
+              <td>{{ each.sanctionedamount }}</td>
+              <td>{{ each.disbursedamount }}</td>
+              <td>{{ each.utilizedamount }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td colspan="2">Total</td>
+              <td>{{ total_igwdp.districtscovered }}</td>
+              <td>{{ total_igwdp.watershedscount }}</td>
+              <td>{{ total_igwdp.geographicalarea }}</td>
+              <td>{{ total_igwdp.treatablearea }}</td>
+              <td>{{ total_igwdp.householdscovered }}</td>
+              <td>{{ total_igwdp.pfacount }}</td>
+              <td>{{ total_igwdp.ongoingprojects }}</td>
+              <td>{{ total_igwdp.completedprojects }}</td>
+              <td>{{ total_igwdp.sanctionedamount }}</td>
+              <td>{{ total_igwdp.disbursedamount }}</td>
+              <td>{{ total_igwdp.utilizedamount }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="ExportToExcel('xlsx', 'IGWDP')">Export to XLSX</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

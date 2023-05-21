@@ -1,0 +1,19 @@
+<div class="subContent" id="addLayer">
+  <h5 class="heading">Add Layer</h5>
+  <div class="mb-3">
+    <label for="geoserver" class="form-label">Geoserver URL</label>
+    <input type="text" class="form-control" id="geoserver" placeholder="https://host:port/geoserver">
+  </div>
+  <div class="mb-3">
+    <label for="geoserver_username" class="form-label">Username (If required)</label>
+    <input type="text" class="form-control" id="geoserver_username">
+  </div>
+  <div class="mb-3">
+    <label for="geoserver_password" class="form-label">Password (If required)</label>
+    <input type="password" class="form-control" id="geoserver_password">
+  </div>
+  <button type="button" class="btn btn-success btn-sm rounded-pill" id="fetchLayers">Add Layer +</button>
+  <div id="layersFromWMS"></div>
+  {% comment %} <h5 class="heading">Layer List</h5> {% endcomment %}
+  {% comment %} <div class="accordion" id="layeraccordion"></div> {% endcomment %}
+</div>

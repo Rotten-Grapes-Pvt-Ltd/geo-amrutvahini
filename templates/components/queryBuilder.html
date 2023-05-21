@@ -1,0 +1,121 @@
+<div class="subContent" id="queryBuilder">
+  <h5 class="heading">Query Builder</h5>
+
+  <ul class="nav nav-pills nav-fill" id="queryTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <span class="nav-link active" id="attribute-tab" data-bs-toggle="tab" data-bs-target="#attribute" role="tab" aria-controls="attribute" aria-selected="true">Attribute Query</span>
+    </li>
+    <li class="nav-item" role="presentation">
+      <span class="nav-link" id="spatial-tab" data-bs-toggle="tab" data-bs-target="#spatial" role="tab" aria-controls="spatial" aria-selected="false">Spatial Query</span>
+    </li>
+    <li class="nav-item" role="presentation">
+      <span class="nav-link" id="nearest-tab" data-bs-toggle="tab" data-bs-target="#nearest" role="tab" aria-controls="nearest" aria-selected="false">Nearest Query</span>
+    </li>
+  </ul>
+  <div class="tab-content" id="queryTabContent">
+    <div class="tab-pane fade show active" id="attribute" role="tabpanel" aria-labelledby="attribute-tab">
+      <div class="mb-3">
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_layers"></select>
+      </div>
+      <div class="mb-3">
+        <div class="form-label"><strong>Select Extent:</strong></div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="mapExtent" value="mapExtent" name="extent" onclick="selectExtentHandler('mapExtent')" />
+          <label class="form-check-label" for="mapExtent"><small>Map Extent</small></label>
+        </div>
+        <div class="form-check form-check-inline" id="feRadio">
+          <input class="form-check-input" type="radio" id="fullExtent" value="fullExtent" name="extent" onclick="selectExtentHandler('fullExtent')" />
+          <label class="form-check-label" for="fullExtent"><small>Full Extent</small></label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="draw" value="draw" name="extent" onclick="selectExtentHandler('draw')" />
+          <label class="form-check-label" for="draw"><small>Draw</small></label>
+        </div>
+      </div>
+      <div class="mb-3">
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_columns"></select>
+      </div>
+      <div class="mb-3 operators">
+        <div class="form-label"><strong>Operators:</strong></div>
+        <button class="btn btn-outline-success btn-sm queryOperators">=</button>
+        <button class="btn btn-outline-success btn-sm queryOperators">></button>
+        <button class="btn btn-outline-success btn-sm queryOperators"><</button>
+        <button class="btn btn-outline-success btn-sm queryOperators">>=</button>
+        <button class="btn btn-outline-success btn-sm queryOperators"><=</button>
+      </div>
+      <div class="mb-3">
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_values"></select>
+      </div>
+      <div class="mb-3">
+        <label for="exampleFormControlTextarea1" class="form-label"><strong>SQL Where Clause:</strong></label>
+        <textarea class="form-control form-control-sm" id="rawquery" rows="2"></textarea>
+        <button class="btn btn-warning btn-sm mt-2 rounded-pill" id="clearText">Clear Text</button>
+      </div>
+      <div class="mb-3">
+        <select id="qryselection" class="form-select form-select-sm" aria-label=".form-select-sm example">
+          <option selected>--SELECTION OPTION--</option>
+          <option value="new">New selection</option>
+          <option value="add">Add to existing</option>
+          <!-- <option value="remove">Remove existing</option> -->
+        </select>
+      </div>
+      <div class="mb-3 text-center">
+        <button class="btn btn-success btn-sm w-100 mb-2 rounded-pill" onclick="showQueryResult()"><i class="icofont-check-circled"></i> Apply</button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="clearQueryResult()"><i class="icofont-eraser"></i> Clear</button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="clearGraphic()"><i class="icofont-eraser"></i> Clear Graphic</button>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="spatial" role="tabpanel" aria-labelledby="spatial-tab">
+      <div class="mb-3">
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_extent">
+          <option>--SELECT EXTENT--</option>
+          <option value = "mapextent">Current Viewport</option>
+          <option value = "drawextent">Draw Extent</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_op">
+          <option>--SELECT OPERATION--</option>
+          <option value = "touches">Touches</option>
+          <option value = "contains">Contains</option>
+          <option value = "intersects">Intersects</option>
+          <option value = "within">Within</option>
+          <option value = "disjoint">Disjoint</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_layers2"></select>
+      </div>
+      <div class="mb-3">
+        <select id="qryselection2" class="form-select form-select-sm" aria-label=".form-select-sm example">
+          <option selected>--SELECTION OPTION--</option>
+          <option value="new">New selection</option>
+          <option value="add">Add to existing</option>
+          <!-- <option value="remove">Remove existing</option> -->
+        </select>
+      </div>
+      <div class="mb-3 text-center">
+        <button class="btn btn-success btn-sm w-100 mb-2 rounded-pill" onclick="showQueryResultSP()"><i class="icofont-check-circled"></i> Apply</button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="clearQueryResultSP()"><i class="icofont-eraser"></i> Clear</button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="clearGraphic()"><i class="icofont-eraser"></i> Clear Graphic</button>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nearest" role="tabpanel" aria-labelledby="nearest-tab">
+      <div class="mb-3">
+        <button class="btn btn-dark" id="selectLocation">Select Location</button>
+      </div>
+      <div class="mb-3">
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_layers3"></select>
+      </div>
+      <div class="mb-3">
+        <label for="resultNum" class="form-label"><strong>Number of result:</strong></label>
+        <input type="number" class="form-control form-control-sm" id="resultNum" min="1" step="1" value="10">
+      </div>
+      <div class="mb-3 text-center">
+        <button class="btn btn-success btn-sm w-100 mb-2 rounded-pill" onclick="showNearestQueryResult()"><i class="icofont-check-circled"></i> Apply</button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="clearNearestQueryResultSP()"><i class="icofont-eraser"></i> Clear</button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="clearGraphic()"><i class="icofont-eraser"></i> Clear Graphic</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+{
+    "host": "http://89.233.108.250:8080",
+    "geoserver":"http://89.233.108.250:8080/geoserver",
+    "workspace":"giz",
+    "username":"admin",
+    "password":"GiZ#8080",
+    "map" : {
+        "projection":"EPSG:32644",
+        "center":[77.2918018858705, 23.857540682484213],
+        "zoom":4.5
+    },
+    "weather":"9c97706aa6f54cef6545cf00cb2a89f6"
+}
