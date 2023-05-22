@@ -1,4 +1,29 @@
 <div class="subContent" id="layerList">
   <h5 class="heading">Layer List</h5>
-  <div class="accordion" id="layeraccordion"></div>
+  <div class="accordion" id="layeraccordion">
+    {% for layer in layers %}
+      
+   
+      <div class="accordion-item">
+          <div class="accordion-collapse collapse show" id="collapse_administrative" aria-labelledby="heading_administrative" data-bs-parent="#layeraccordion" style="">
+              <div class="accordion-body">
+                  <div class="form-check form-switch">
+                      <i onclick="toggleDropDown(this,'{{ layer.alternate }}')" class="icofont-rounded-right dropDownIcon"></i>
+                      <input type="checkbox" layer="{{ layer.alternate }}" workspace="giz" class="form-check-input" id="{{ layer.alternate }}" onchange="togglelayer(this.id, this.checked)" />
+                      <label class="form-check-label" for="{{ layer.alternate }}">{{ layer.title }}</label>
+                      <div class="dropDownContainer" id="dd_{{ layer.alternate }}">
+                          <div class="d-flex align-items-center">Opacity<input class="slider" onchange="layerOpac(this.value,'{{ layer.alternate }}')" type="range" value="100" layer="{{ layer.alternate }}" /><span class="opValue">100</span></div>
+                          <input type="hidden" value="polygon" id="style_{{ layer.alternate }}" />
+                          <img
+                              src="https://geonode.communitygis.in/geoserver/geonode/wms?REQUEST=GetLegendGraphic&amp;VERSION=1.0.0&amp;FORMAT=image/png&amp;WIDTH=10&amp;HEIGHT=10&amp;LAYER={{ layer.alternate }}&amp;legend_options=fontName:Times%20New%20Roman;fontAntiAliasing:false;fontColor:0x333333;fontSize:6;bgColor:0xFFFFEE;dpi:180&amp;TRANSPARENT=true"
+                          />
+                      </div>
+                  </div>
+                  
+                
+              </div>
+          </div>
+      </div>
+      {% endfor %}
+  </div>
 </div>

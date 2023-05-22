@@ -35,14 +35,14 @@
       <i class="icofont-ruler-pencil"></i><br />
       Measurement
     </li>
-    <li
+    <!-- <li
       class="menuItem"
       id="weatherCTA"
       onclick="showContent('weather');pointOnMap(true);"
     >
       <i class="icofont-ui-weather"></i><br />
       Weather
-    </li>
+    </li> -->
   </ul>
   <div class="navContent">
     <span id="closeNavContent">
@@ -92,85 +92,7 @@
   </div>
 </div>
 
-<div
-  class="modal fade"
-  id="IGWDPSummary"
-  data-bs-backdrop="static"
-  data-bs-keyboard="false"
-  tabindex="-1"
-  aria-labelledby="IGWDPSummaryLabel"
-  aria-hidden="true"
->
-  <div
-    class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl"
-  >
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="IGWDPSummary">IGWDP</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <table class="table" id="IGWDP">
-          <thead>
-            <th>S No.</th>
-            <th>State</th>
-            <th>Districts Covered</th>
-            <th>No of Watersheds</th>
-            <th>Geographical Area (Ha)</th>
-            <th>Treatable Area (Ha)</th>
-            <th>Households Covered</th>
-            <th>Total PFAs</th>
-            <th>OnGoing Projects</th>
-            <th>Completed Projects</th>
-            <th>Amount Sanctioned (In Lakhs)</th>
-            <th>Amount Disbursed (In Lakhs)</th>
-            <th>Amount Utilized (In Lakhs)</th>
-          </thead>
-          <tbody>
-            {% for each in IGWDP %}
-            <tr>
-              <td>{{ each.id }}</td>
-              <td>{{ each.state }}</td>
-              <td>{{ each.districtscovered }}</td>
-              <td>{{ each.watershedscount }}</td>
-              <td>{{ each.geographicalarea }}</td>
-              <td>{{ each.treatablearea }}</td>
-              <td>{{ each.householdscovered }}</td>
-              <td>{{ each.pfacount }}</td>
-              <td>{{ each.ongoingprojects }}</td>
-              <td>{{ each.completedprojects }}</td>
-              <td>{{ each.sanctionedamount }}</td>
-              <td>{{ each.disbursedamount }}</td>
-              <td>{{ each.utilizedamount }}</td>
-            </tr>
-            {% endfor %}
-            <tr>
-              <td colspan="2">Total</td>
-              <td>{{ total_igwdp.districtscovered }}</td>
-              <td>{{ total_igwdp.watershedscount }}</td>
-              <td>{{ total_igwdp.geographicalarea }}</td>
-              <td>{{ total_igwdp.treatablearea }}</td>
-              <td>{{ total_igwdp.householdscovered }}</td>
-              <td>{{ total_igwdp.pfacount }}</td>
-              <td>{{ total_igwdp.ongoingprojects }}</td>
-              <td>{{ total_igwdp.completedprojects }}</td>
-              <td>{{ total_igwdp.sanctionedamount }}</td>
-              <td>{{ total_igwdp.disbursedamount }}</td>
-              <td>{{ total_igwdp.utilizedamount }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="ExportToExcel('xlsx', 'IGWDP')">Export to XLSX</button>
-      </div>
-    </div>
-  </div>
+ 
 </div>
 
 {% endblock %}

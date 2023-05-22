@@ -15,7 +15,12 @@
   <div class="tab-content" id="queryTabContent">
     <div class="tab-pane fade show active" id="attribute" role="tabpanel" aria-labelledby="attribute-tab">
       <div class="mb-3">
-        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_layers"></select>
+        <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="qry_layers">
+          <option >--SELECT LAYER--</option>
+          {% for layer in layers %}
+          <option value="{{ layer.alternate }}" >{{ layer.title }}</option>
+          {% endfor %}
+        </select>
       </div>
       <div class="mb-3">
         <div class="form-label"><strong>Select Extent:</strong></div>

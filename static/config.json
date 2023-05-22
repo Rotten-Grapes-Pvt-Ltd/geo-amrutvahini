@@ -1,11 +1,11 @@
 {
     "host": "http://89.233.108.250:8080",
-    "geoserver":"http://89.233.108.250:8080/geoserver",
+    "geoserver":"https://geonode.communitygis.in/geoserver",
     "workspace":"giz",
     "username":"admin",
     "password":"GiZ#8080",
     "map" : {
-        "projection":"EPSG:32644",
+        "projection":"EPSG:4326",
         "center":[77.2918018858705, 23.857540682484213],
         "zoom":4.5
     },

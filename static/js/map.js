@@ -82,18 +82,6 @@ var _conf,
     ],
   };
 
-$.ajax({
-  url: "/static/config.json",
-  dataType: "json",
-  async: false,
-  success: function (data) {
-    _conf = data;
-  },
-});
-
-proj4.defs( _conf.map.projection, '+proj=utm +zone=44 +datum=WGS84 +units=m +no_defs' )
-ol.proj.proj4.register(proj4)
-
 const raster = new ol.layer.Tile({
   source: new ol.source.OSM(),
 });
@@ -108,304 +96,200 @@ let wktFormat = new ol.format.WKT({
 
 var map = new ol.Map({
   target: "map",
-  layers: [raster, vector, new ol.layer.Tile({
-    source: new ol.source.TileWMS({
-      url: _conf.geoserver+ '/giz/wms',
-      params: {'LAYERS': 'giz:india_boundary', 'TILED': true},
-      serverType: 'geoserver',
-      // Countries have transparency, so do not fade tiles:
-      transition: 0
-    }),
-    title: "India_base",
-  })],
+  layers: [raster, vector, 
+  //   new ol.layer.Tile({
+  //   source: new ol.source.TileWMS({
+  //     url: _conf.geoserver+ '/giz/wms',
+  //     params: {'LAYERS': 'giz:india_boundary', 'TILED': true},
+  //     serverType: 'geoserver',
+  //     // Countries have transparency, so do not fade tiles:
+  //     transition: 0
+  //   }),
+  //   title: "India_base",
+  // })
+],
   view: new ol.View({
-    center: ol.proj.fromLonLat(_conf.map.center),
-    zoom: _conf.map.zoom,
+    projection: "EPSG:4326",
+   
+    center:[77.2918018858705, 23.857540682484213],
+    zoom:4.5
   }),
 });
 
 // ========================================
 // Layer list Start -----------------------
 
-var myHeaders = new Headers();
-myHeaders.append(
-  "Authorization",
-  "Basic " + btoa(_conf.username + ":" + _conf.password)
-);
 
-var requestOptions = {
-  method: "GET",
-  headers: myHeaders,
-  redirect: "follow",
-};
+// Promise.all([
+//   fetch(_conf.geoserver + "/rest/layergroups", requestOptions),
+//   fetch(_conf.geoserver + "/ows?service=wms&version=1.3.0&request=GetCapabilities", requestOptions)
+// ])
+// .then(function(responses) {
+//   return Promise.all(
+//     responses.map(function (response, i) {
+//       if(i == 0) {
+//         return response.json()
+//       } else {
+//         return response.text()
+//       }
+//     })
+//   )
+// })
+// .then(function(result) {
+//   var x2js = new X2JS()
+//   getCaps = x2js.xml2json(new window.DOMParser().parseFromString(result[1], "text/xml")).WMS_Capabilities.Capability.Layer.Layer
+//   getCaps.forEach(element => {
+//     if(typeof(element.KeywordList.Keyword) == 'object' ) {
+//     infoCols[element.Name.split(':')[1]] = element.KeywordList.Keyword
+//     } else  if(typeof(element.KeywordList.Keyword) == 'string' ) {
+//       infoCols[element.Name.split(':')[1]] = [element.KeywordList.Keyword]
+//       } else {
+//       infoCols[element.Name.split(':')[1]] = ''
+//     }
 
-Promise.all([
-  fetch(_conf.geoserver + "/rest/layergroups", requestOptions),
-  fetch(_conf.geoserver + "/ows?service=wms&version=1.3.0&request=GetCapabilities", requestOptions)
-])
-.then(function(responses) {
-  return Promise.all(
-    responses.map(function (response, i) {
-      if(i == 0) {
-        return response.json()
-      } else {
-        return response.text()
-      }
-    })
-  )
-})
-.then(function(result) {
-  var x2js = new X2JS()
-  getCaps = x2js.xml2json(new window.DOMParser().parseFromString(result[1], "text/xml")).WMS_Capabilities.Capability.Layer.Layer
-  getCaps.forEach(element => {
-    if(typeof(element.KeywordList.Keyword) == 'object' ) {
-    infoCols[element.Name.split(':')[1]] = element.KeywordList.Keyword
-    } else  if(typeof(element.KeywordList.Keyword) == 'string' ) {
-      infoCols[element.Name.split(':')[1]] = [element.KeywordList.Keyword]
-      } else {
-      infoCols[element.Name.split(':')[1]] = ''
-    }
+//   });
+//   result[0].layerGroups.layerGroup.map(function (group) {
+//     var eachGroup = [];
+//     eachGroup["group"] = group.name;
+//     eachGroup["layers"] = [];
+//     $.ajax({
+//       url: group.href,
+//       dataType: "json",
+//       async: false,
+//       headers: {
+//         Authorization: "Basic " + btoa(_conf.username + ":" + _conf.password),
+//       },
+//       success: function (data) {
+//         if(Array.isArray(data.layerGroup.publishables.published)) {
+//           data.layerGroup.publishables.published.map(function (layer) {
+//             eachGroup["layers"].push(layer.name);
+//             alllayers.push(layer.name.split(":")[1]);
+//           });
+//         } else {
+//           var layer = data.layerGroup.publishables.published
+//           eachGroup["layers"].push(layer.name);
+//           alllayers.push(layer.name.split(":")[1]);
+//         }
+//       },
+//     });
+//     layerList.push(eachGroup);
+//   });
 
-  });
-  result[0].layerGroups.layerGroup.map(function (group) {
-    var eachGroup = [];
-    eachGroup["group"] = group.name;
-    eachGroup["layers"] = [];
-    $.ajax({
-      url: group.href,
-      dataType: "json",
-      async: false,
-      headers: {
-        Authorization: "Basic " + btoa(_conf.username + ":" + _conf.password),
-      },
-      success: function (data) {
-        if(Array.isArray(data.layerGroup.publishables.published)) {
-          data.layerGroup.publishables.published.map(function (layer) {
-            eachGroup["layers"].push(layer.name);
-            alllayers.push(layer.name.split(":")[1]);
-          });
-        } else {
-          var layer = data.layerGroup.publishables.published
-          eachGroup["layers"].push(layer.name);
-          alllayers.push(layer.name.split(":")[1]);
-        }
-      },
+//   layerList.map(function (each) {
+//     var button = document.createElement("button");
+//     button.className = "accordion-button collapsed";
+//     button.setAttribute("type", "button");
+//     button.setAttribute("data-bs-toggle", "collapse");
+//     button.setAttribute(
+//       "data-bs-target",
+//       "#collapse_" + each["group"].toLowerCase().replaceAll(" ", "_")
+//     );
+//     button.setAttribute("aria-expanded", "false");
+//     button.setAttribute(
+//       "aria-controls",
+//       "collapse_" + each["group"].toLowerCase().replaceAll(" ", "_")
+//     );
+//     button.appendChild(document.createTextNode(each["group"]));
+
+//     var header = document.createElement("h2");
+//     header.className = "accordion-header";
+//     header.setAttribute(
+//       "id",
+//       "heading_" + each["group"].toLowerCase().replaceAll(" ", "_")
+//     );
+//     header.appendChild(button);
+
+//     var content = document.createElement("div");
+//     content.className = "accordion-body";
+
+//     each["layers"].map(function (layer) {
+//       var DivFormCheck = createLayerlist(layer, _conf.geoserver);
+//       content.appendChild(DivFormCheck);
+//     });
+
+//     var collapse = document.createElement("div");
+//     collapse.className = "accordion-collapse collapse";
+//     collapse.setAttribute(
+//       "id",
+//       "collapse_" + each["group"].toLowerCase().replaceAll(" ", "_")
+//     );
+//     collapse.setAttribute(
+//       "aria-labelledby",
+//       "heading_" + each["group"].toLowerCase().replaceAll(" ", "_")
+//     );
+//     collapse.setAttribute("data-bs-parent", "#layeraccordion");
+//     collapse.appendChild(content);
+
+//     var wrapper = document.createElement("div");
+//     wrapper.className = "accordion-item";
+//     wrapper.appendChild(header);
+//     wrapper.appendChild(collapse);
+
+//     document.getElementById("layeraccordion").appendChild(wrapper);
+//   });
+
+//   var option = document.createElement("option");
+//   option.innerText = "--SELECT LAYER--";
+//   option.selected = true;
+//   document.getElementById("qry_layers").appendChild(option);
+//   alllayers.map(function (layer) {
+//     var option = document.createElement("option");
+//     option.innerText = layer;
+//     option.value = layer;
+//     document.getElementById("qry_layers").appendChild(option);
+//   });
+
+//   var option = document.createElement("option");
+//   option.innerText = "--SELECT LAYER--";
+//   option.selected = true;
+//   document.getElementById("qry_layers2").appendChild(option);
+//   alllayers.map(function (layer) {
+//     var option = document.createElement("option");
+//     option.innerText = layer;
+//     option.value = layer;
+//     document.getElementById("qry_layers2").appendChild(option);
+//   });
+
+//   var option = document.createElement("option");
+//   option.innerText = "--SELECT LAYER--";
+//   option.selected = true;
+//   document.getElementById("qry_layers3").appendChild(option);
+//   alllayers.map(function (layer) {
+//     var option = document.createElement("option");
+//     option.innerText = layer;
+//     option.value = layer;
+//     document.getElementById("qry_layers3").appendChild(option);
+//   });
+// })
+// .catch((error) => console.log("error", error));
+
+function togglelayer(layerName, checked) {
+  if (checked) {
+    let layer = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        visible: true,
+        ratio: 1,
+        url:  "https://geonode.communitygis.in/geoserver/geonode/wms",
+        params: {
+          FORMAT: "image/png",
+          VERSION: "1.1.0",
+          LAYERS: layerName,
+          'TILED': true,
+          exceptions: "application/vnd.ogc.se_inimage",
+        },
+        serverType: "geoserver",
+        crossOrigin: "anonymous",
+      }),
+      name: layerName,
     });
-    layerList.push(eachGroup);
-  });
-
-  layerList.map(function (each) {
-    var button = document.createElement("button");
-    button.className = "accordion-button collapsed";
-    button.setAttribute("type", "button");
-    button.setAttribute("data-bs-toggle", "collapse");
-    button.setAttribute(
-      "data-bs-target",
-      "#collapse_" + each["group"].toLowerCase().replaceAll(" ", "_")
-    );
-    button.setAttribute("aria-expanded", "false");
-    button.setAttribute(
-      "aria-controls",
-      "collapse_" + each["group"].toLowerCase().replaceAll(" ", "_")
-    );
-    button.appendChild(document.createTextNode(each["group"]));
-
-    var header = document.createElement("h2");
-    header.className = "accordion-header";
-    header.setAttribute(
-      "id",
-      "heading_" + each["group"].toLowerCase().replaceAll(" ", "_")
-    );
-    header.appendChild(button);
-
-    var content = document.createElement("div");
-    content.className = "accordion-body";
-
-    each["layers"].map(function (layer) {
-      var DivFormCheck = createLayerlist(layer, _conf.geoserver);
-      content.appendChild(DivFormCheck);
-    });
-
-    var collapse = document.createElement("div");
-    collapse.className = "accordion-collapse collapse";
-    collapse.setAttribute(
-      "id",
-      "collapse_" + each["group"].toLowerCase().replaceAll(" ", "_")
-    );
-    collapse.setAttribute(
-      "aria-labelledby",
-      "heading_" + each["group"].toLowerCase().replaceAll(" ", "_")
-    );
-    collapse.setAttribute("data-bs-parent", "#layeraccordion");
-    collapse.appendChild(content);
-
-    var wrapper = document.createElement("div");
-    wrapper.className = "accordion-item";
-    wrapper.appendChild(header);
-    wrapper.appendChild(collapse);
-
-    document.getElementById("layeraccordion").appendChild(wrapper);
-  });
-
-  var option = document.createElement("option");
-  option.innerText = "--SELECT LAYER--";
-  option.selected = true;
-  document.getElementById("qry_layers").appendChild(option);
-  alllayers.map(function (layer) {
-    var option = document.createElement("option");
-    option.innerText = layer;
-    option.value = layer;
-    document.getElementById("qry_layers").appendChild(option);
-  });
-
-  var option = document.createElement("option");
-  option.innerText = "--SELECT LAYER--";
-  option.selected = true;
-  document.getElementById("qry_layers2").appendChild(option);
-  alllayers.map(function (layer) {
-    var option = document.createElement("option");
-    option.innerText = layer;
-    option.value = layer;
-    document.getElementById("qry_layers2").appendChild(option);
-  });
-
-  var option = document.createElement("option");
-  option.innerText = "--SELECT LAYER--";
-  option.selected = true;
-  document.getElementById("qry_layers3").appendChild(option);
-  alllayers.map(function (layer) {
-    var option = document.createElement("option");
-    option.innerText = layer;
-    option.value = layer;
-    document.getElementById("qry_layers3").appendChild(option);
-  });
-})
-.catch((error) => console.log("error", error));
-
-function createLayerlist(layername, geoserver) {
-  var workspace = layername.split(":")[0]
-  var layer = layername.split(":")[1]
-  if(workspace && layer) {
-    let dropDownIcon = document.createElement("i");
-    dropDownIcon.className = "icofont-rounded-right dropDownIcon";
-    dropDownIcon.addEventListener("click", function () {
-      toggleDropDown(this, layer.toLowerCase().replaceAll(" ", "_"));
-    });
-
-    var inputCheckBox = document.createElement("input");
-    inputCheckBox.setAttribute("type", "checkbox");
-    inputCheckBox.setAttribute("layer", layer);
-    inputCheckBox.setAttribute("workspace", workspace);
-    inputCheckBox.className = "form-check-input";
-    inputCheckBox.id = layer;
-    inputCheckBox.addEventListener("click", function () {
-      toggleLayerOnMap(this, geoserver);
-    });
-
-    var labelCheckBox = document.createElement("label");
-    labelCheckBox.className = "form-check-label";
-    labelCheckBox.setAttribute("for", layer);
-    labelCheckBox.innerText = layer;
-
-    var dropDownDiv = document.createElement("div");
-    dropDownDiv.className = "dropDownContainer";
-    dropDownDiv.setAttribute(
-      "id",
-      "dd_" + layer.toLowerCase().replaceAll(" ", "_")
-    );
-
-    var opacityDiv = document.createElement("div");
-    opacityDiv.className = "d-flex align-items-center";
-    opacityDiv.innerText = "Opacity";
-
-    let opInput = document.createElement("input");
-    opInput.className = "slider";
-    opInput.setAttribute("type", "range");
-    opInput.setAttribute("value", 100);
-    opInput.setAttribute("layer", layer);
-    opInput.addEventListener("change", function () {
-      var layername = this.getAttribute("layer");
-      var opacVal = this.value / 100;
-      var layer = getLayerFromMap(layername);
-      if (layer != null) {
-        layer.setOpacity(opacVal);
-      }
-    });
-
-    let valueSpan = document.createElement("span");
-    valueSpan.className = "opValue";
-    valueSpan.innerText = opInput.value;
-    opInput.oninput = function () {
-      valueSpan.innerText = this.value;
-    };
-
-    var img = document.createElement("img");
-    img.setAttribute(
-      "src",
-      geoserver +
-      "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=10&HEIGHT=10&LAYER=" +
-      workspace +
-      ":" +
-      layer +
-      "&legend_options=fontName:Times%20New%20Roman;fontAntiAliasing:false;fontColor:0x333333;fontSize:6;bgColor:0xFFFFEE;dpi:180&TRANSPARENT=true"
-    );
-
-    dropDownDiv.appendChild(opacityDiv);
-    var styles = getCaps.filter(function(each) {
-      return each.Title == layer
-    })[0]
-    if(styles) {
-      if(Array.isArray(styles.Style)) {
-        var select = document.createElement("select")
-        select.setAttribute("of", layer)
-        select.className = "d-flex"
-        select.setAttribute("id", "style_" + layer.toLowerCase().replaceAll(" ", "_"))
-        select.addEventListener("change", function() {
-          var lyr = getLayerFromMap(layer)
-          if(lyr) {
-            lyr.getSource().updateParams({ STYLES: this.value })
-          }
-          var img = this.nextElementSibling
-          img.setAttribute(
-            "src",
-            geoserver +
-            "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=10&HEIGHT=10&LAYER=" +
-            workspace +
-            ":" +
-            layer +
-            "&STYLE=" + this.value + "&legend_options=fontName:Times%20New%20Roman;fontAntiAliasing:false;fontColor:0x333333;fontSize:6;bgColor:0xFFFFEE;dpi:180&TRANSPARENT=true"
-          )
-        })
-        styles.Style.map(function(style) {
-          var option = document.createElement("option")
-          option.setAttribute("value", style.Name)
-          option.innerText = style.Title
-          select.appendChild(option)
-        })
-        dropDownDiv.appendChild(select);
-      } else {
-        var inputText = document.createElement("input")
-        inputText.setAttribute("type", "hidden")
-        inputText.setAttribute("value", styles.Style.Name)
-        inputText.setAttribute("id", "style_" + layer.toLowerCase().replaceAll(" ", "_"))
-        dropDownDiv.appendChild(inputText)
-      }
-    }
-    dropDownDiv.appendChild(img);
-    opacityDiv.appendChild(opInput);
-    opacityDiv.appendChild(valueSpan);
-
-    var DivFormCheck = document.createElement("div");
-    DivFormCheck.className = "form-check form-switch";
-    DivFormCheck.appendChild(dropDownIcon);
-    DivFormCheck.appendChild(inputCheckBox);
-    DivFormCheck.appendChild(labelCheckBox);
-    DivFormCheck.appendChild(dropDownDiv);
-
-    return DivFormCheck;
+    // var opacVal = $("input[type=range][layer='" + layerName + "']").val() / 100;
+    // layer.setOpacity(opacVal);
+    map.addLayer(layer);
+  }else {
+    var lyr = getLayerFromMap(layerName);
+    map.removeLayer(lyr);
   }
 }
-
 const toggleLayerOnMap = (elem, geoserver) => {
   var layerName = elem.getAttribute("layer");
   var workspace = elem.getAttribute("workspace");
@@ -479,6 +363,15 @@ function getLayerFromMap(layername) {
   return lyr;
 }
 
+function layerOpac(val,layername) {
+
+    var opacVal = val / 100;
+    var layer = getLayerFromMap(layername);
+    if (layer != null) {
+      layer.setOpacity(opacVal);
+    }
+}
+
 document.getElementById("fetchLayers").addEventListener("click", function(e) {
   if(document.getElementById("geoserver").value == "") {
     swal({
@@ -549,13 +442,10 @@ $("#qry_layers").on("change", function () {
   if ($("#qry_layers").val() != "--SELECT LAYER--") {
     document.getElementById("qry_columns").innerHTML = "";
     fetch(
-      _conf.geoserver +
-        "/ows?service=WFS&version=1.0.0&request=describeFeatureType&typename=" +
-        _conf.workspace +
-        ":" +
+     
+        "https://geonode.communitygis.in/geoserver/ows?service=WFS&version=1.0.0&request=describeFeatureType&typename=" +
         $("#qry_layers").val() +
-        "&outputFormat=application%2Fjson",
-      requestOptions
+        "&outputFormat=application%2Fjson"
     )
     .then((response) => response.json())
     .then((result) => {
@@ -582,15 +472,11 @@ $("#qry_columns").on("change", function () {
     document.getElementById("qry_values").innerHTML = "";
     document.getElementById("rawquery").value = $("#qry_columns").val();
     fetch(
-      _conf.geoserver +
-        "/ows?service=WFS&version=1.0.0&request=GetFeature&typename=" +
-        _conf.workspace +
-        ":" +
+      "https://geonode.communitygis.in/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typename=" +
         $("#qry_layers").val() +
         "&PROPERTYNAME=" +
         $("#qry_columns").val() +
-        "&outputFormat=application%2Fjson",
-      requestOptions
+        "&outputFormat=application%2Fjson"
     )
       .then((response) => response.json())
       .then((result) => {
@@ -676,7 +562,7 @@ function showQueryResult() {
   if ($("input[name=extent]:checked").val() == "mapExtent") {
     var extent = ol.proj.transformExtent(
       map.getView().calculateExtent(map.getSize()),
-      "EPSG:3857",
+      "EPSG:4326",
       "EPSG:4326"
     );
   } else if ($("input[name=extent]:checked").val() == "fullExtent") {
@@ -684,7 +570,7 @@ function showQueryResult() {
   } else if ($("input[name=extent]:checked").val() == "draw") {
     var extent = ol.proj.transformExtent(
       _fgeom_attrQuery.getExtent(),
-      "EPSG:3857",
+      "EPSG:4326",
       "EPSG:4326"
     );
   } else {
@@ -715,12 +601,7 @@ function showQueryResult() {
     }
   }
   var url =
-    _conf.geoserver +
-    "/" +
-    _conf.workspace +
-    "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" +
-    _conf.workspace +
-    "%3A" +
+    "https://geonode.communitygis.in/geoserver/geonode/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" +
     $("#qry_layers").val() +
     "&outputFormat=application%2Fjson&CQL_FILTER=(" +
     $("#rawquery").val() +
@@ -728,11 +609,23 @@ function showQueryResult() {
   if (extent.length == 4) {
     url += " and bbox(geom," + extent + ")";
   }
+  fetch(url)
+  .then(res => res.json())
+  .then(result => {
+if (result.features.length == 0) {
+  swal({
+    position: "center",
+    icon: "error",
+    title: "No result found for the query!",
+    showConfirmButton: false,
+    timer: 2000,
+  });
+} else {
+ 
   var layer = new ol.layer.Vector({
     source: new ol.source.Vector({
-      url: url,
-      format: new ol.format.GeoJSON(),
-      projection: "EPSG:3857",
+      features: (new ol.format.GeoJSON()).readFeatures(result),
+      // projection: "EPSG:4326",
       crossOrigin: "anonymous",
       serverType: "geoserver",
     }),
@@ -740,18 +633,8 @@ function showQueryResult() {
       return styles[feature.getGeometry().getType()];
     },
   });
-  layer.on("change", function (e) {
-    if (layer.getSource().getFeatures().length > 0) {
-      map.getView().fit(e.target.getSource().getExtent(), map.getSize());
-    } else {
-      swal({
-        position: "center",
-        icon: "error",
-        title: "No result found for the query!",
-        showConfirmButton: false,
-        timer: 2000,
-      });
-    }
+     
+    
     $("#clearText").click();
     $("#qry_values option").prop("selected", function () {
       return this.defaultSelected;
@@ -763,10 +646,13 @@ function showQueryResult() {
       return this.defaultSelected;
     });
     document.querySelector('input[name="extent"]:checked').checked = false;
-    $("body").css("cursor", "default");
-  });
+  
+  $("body").css("cursor", "default");
   layer.set("name", layername);
   map.addLayer(layer);
+  map.getView().fit(layer.getSource().getExtent(), map.getSize());
+}
+})
 }
 
 function clearQueryResult() {
@@ -824,7 +710,7 @@ $("#qry_extent").on("change", function() {
     })
     map.addInteraction(_draw_spatlQuery)
     _draw_spatlQuery.on('drawend', function (evt) {	      
-      var cext = ol.proj.transformExtent(evt.feature.getGeometry().getExtent(), 'EPSG:3857', 'EPSG:4326')
+      var cext = ol.proj.transformExtent(evt.feature.getGeometry().getExtent(), 'EPSG:4326', 'EPSG:4326')
       var exttgeom = ol.geom.Polygon.fromExtent(cext)
       _drawnGeom_spatlQuery = new ol.geom.Polygon(exttgeom.getCoordinates())
       map.removeInteraction(_draw_spatlQuery)
@@ -835,7 +721,7 @@ $("#qry_extent").on("change", function() {
 		if (lyr != null) {
 			map.removeLayer(lyr)
 		}
-    var cext = ol.proj.transformExtent(map.getView().calculateExtent(map.getSize()), 'EPSG:3857', 'EPSG:4326')
+    var cext = ol.proj.transformExtent(map.getView().calculateExtent(map.getSize()), 'EPSG:4326', 'EPSG:4326')
     var exttgeom = ol.geom.Polygon.fromExtent(cext)
     _drawnGeom_spatlQuery = new ol.geom.Polygon(exttgeom.getCoordinates())
   } else {
@@ -902,7 +788,7 @@ function showQueryResultSP() {
       source: new ol.source.Vector({
         url: url,
         format: new ol.format.GeoJSON(),
-        projection: "EPSG:3857",
+        projection: "EPSG:4326",
         crossOrigin: "anonymous",
         serverType: "geoserver",
       }),
@@ -1105,7 +991,7 @@ function createHelpTooltip() {
  * @return {string} The formatted length.
  */
 const formatLength = function (line) {
-  const length = ol.sphere.getLength(line, { projection: "EPSG:3857" });
+  const length = ol.sphere.getLength(line, { projection: "EPSG:4326" });
   let output;
   if (length > 100) {
     output = Math.round(length / 1000) + " km";
@@ -1121,7 +1007,7 @@ const formatLength = function (line) {
  * @return {string} Formatted area.
  */
 const formatArea = function (polygon) {
-  const area = ol.sphere.getArea(polygon, { projection: "EPSG:3857" });
+  const area = ol.sphere.getArea(polygon, { projection: "EPSG:4326" });
   let output;
   if (area > 10000) {
     output = Math.round(area / 1000000) + " km<sup>2</sup>";
@@ -1479,7 +1365,7 @@ function identifyF(evt) {
     map.getLayers().forEach(function(lyr) {
       if (typeof (lyr) != 'undefined' &&  lyr.get('title') != 'India_base' && (lyr.getSource() instanceof ol.source.TileWMS || lyr.getSource() instanceof ol.source.ImageWMS)) {
         // if(lyr.get('title') != 'India_base'){
-        WFS_urls.push(fetch(lyr.getSource().getFeatureInfoUrl(identifyCord, map.getView().getResolution(), 'EPSG:3857', { 'INFO_FORMAT': 'application/json' })));
+        WFS_urls.push(fetch(lyr.getSource().getFeatureInfoUrl(identifyCord, map.getView().getResolution(), 'EPSG:4326', { 'INFO_FORMAT': 'application/json' })));
       // }
     }
     })
@@ -1693,13 +1579,13 @@ function showNearestQueryResult() {
       map.addLayer(linelayer)
 
       result.map(function(row) {
-        var to = wktFormat.readGeometry(row[row.length - 2], "EPSG:3857")
+        var to = wktFormat.readGeometry(row[row.length - 2], "EPSG:4326")
         var feature = new ol.Feature({
           geometry: to
         })
         layer.getSource().addFeature(feature)
 
-        var from = wktFormat.readGeometry(_fgeom_nearestQuery, "EPSG:3857")
+        var from = wktFormat.readGeometry(_fgeom_nearestQuery, "EPSG:4326")
         var coord = [to.getCoordinates(), from.getCoordinates()]
         var linefeat = new ol.Feature({
           geometry: new ol.geom.LineString(coord)
